@@ -50,6 +50,7 @@ exports.login = async (req, res) => {
       user: { id: user._id, username: user.username, email: user.email, role: user.role },
     });
   } catch (err) {
-    res.status(500).json({ message: 'Lỗi server', error: err.message });
-  }
+  console.error(err);
+  res.status(500).json({ message: 'Lỗi server', error: err.message });
+}
 };
