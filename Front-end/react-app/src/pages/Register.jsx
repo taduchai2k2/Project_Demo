@@ -1,79 +1,77 @@
 import React, { useState } from "react";
-import { Form, Button, Container, Row, Col, Card } from "react-bootstrap";
-import axios from "axios";
-import { useNavigate, Link } from "react-router-dom";
-
+import { useNavigate } from "react-router-dom"; // ✅ thêm dòng này
 const Register = () => {
-  const [formData, setFormData] = useState({ username: "", email: "", password: "" });
-  const navigate = useNavigate();
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate(); // ✅ thêm dòng này
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:9999/api/auth/register", formData);
-      alert("Đăng ký thành công! Hãy đăng nhập.");
-      navigate("/login");
+      const res = await fetch("http://localhost:9999/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        // ⚠️ Đổi name → username để backend nhận đúng
+        body: JSON.stringify({ username: name, email, password }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert("Đăng ký thành công!");
+         navigate("/login");
+      } else {
+        alert(data.message || "Lỗi đăng ký!");
+      }
     } catch (err) {
-      alert(err.response?.data?.message || "Lỗi khi đăng ký");
+      console.error("Lỗi FE:", err);
+      alert("Lỗi đăng ký!");
     }
   };
 
   return (
-    <Container className="d-flex justify-content-center align-items-center min-vh-100">
-      <Row>
-        <Col>
-          <Card className="shadow p-4" style={{ width: "400px" }}>
-            <h3 className="text-center mb-4">Đăng ký</h3>
-            <Form onSubmit={handleSubmit}>
-              <Form.Group className="mb-3">
-                <Form.Control
-                  type="text"
-                  name="username"
-                  placeholder="Tên người dùng"
-                  value={formData.username}
-                  onChange={handleChange}
-                  required
-                />
-              </Form.Group>
+    <div className="container my-5" style={{ maxWidth: "500px" }}>
+      <h2 className="text-center mb-4 fw-bold">Đăng ký</h2>
+      <form onSubmit={handleSubmit}>
+        <div className="mb-3">
+          <label className="form-label">Tên</label>
+          <input
+            type="text"
+            className="form-control"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+        </div>
 
-              <Form.Group className="mb-3">
-                <Form.Control
-                  type="email"
-                  name="email"
-                  placeholder="Email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                />
-              </Form.Group>
+        <div className="mb-3">
+          <label className="form-label">Email</label>
+          <input
+            type="email"
+            className="form-control"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
 
-              <Form.Group className="mb-3">
-                <Form.Control
-                  type="password"
-                  name="password"
-                  placeholder="Mật khẩu"
-                  value={formData.password}
-                  onChange={handleChange}
-                  required
-                />
-              </Form.Group>
+        <div className="mb-3">
+          <label className="form-label">Mật khẩu</label>
+          <input
+            type="password"
+            className="form-control"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
 
-              <Button variant="primary" type="submit" className="w-100">
-                Đăng ký
-              </Button>
-
-              <div className="text-center mt-3">
-                <small>Đã có tài khoản? <Link to="/login">Đăng nhập</Link></small>
-              </div>
-            </Form>
-          </Card>
-        </Col>
-      </Row>
-    </Container>
+        <button type="submit" className="btn btn-success w-100">
+          Đăng ký
+        </button>
+      </form>
+    </div>
   );
 };
 
